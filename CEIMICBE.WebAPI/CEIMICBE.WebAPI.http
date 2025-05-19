@@ -1,0 +1,6 @@
+@CEIMICBE.WebAPI_HostAddress = http://localhost:5134
+
+GET {{CEIMICBE.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

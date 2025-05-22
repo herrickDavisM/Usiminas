@@ -11,5 +11,7 @@ public class Constante
     public static string SPClinkConsulta01File = "sp_clink_consulta01_file";
     public static string SPClinkConsulta01setapiLaudo2 = "sp_clink_consulta01_setapiLaudo2";
 
-    //FIN  PROCEDURE CONSULTA 01
+    //FIN  PROCEDURE CONSULTA 01 
+
 }
+ 

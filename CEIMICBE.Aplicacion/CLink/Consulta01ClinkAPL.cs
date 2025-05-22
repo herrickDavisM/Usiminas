@@ -43,8 +43,8 @@ public class Consulta01ClinkAPL : AplicacionBase
 
                 }
                 //enviar encabezado a funcion funion EnviarJsonParametros quye recibe un string en formato Json
-                //string jsonEncabezado = JsonConvert.SerializeObject(item);
-                //EnviarJsonParametros(jsonEncabezado);
+                string jsonEncabezado = JsonConvert.SerializeObject(item);
+                EnviarJsonParametros(jsonEncabezado);
                 
 
 

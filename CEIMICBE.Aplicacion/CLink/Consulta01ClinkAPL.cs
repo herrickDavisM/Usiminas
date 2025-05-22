@@ -28,17 +28,26 @@ public class Consulta01ClinkAPL : AplicacionBase
 
         try
         {
+            
             List<EncabezadoDTO> listaEncabezado = cons01ClinkRepositorio.ListarEncabezado();
-
             foreach (var item in listaEncabezado)
             {
                 item.tbParametros = cons01ClinkRepositorio.ListarParametro(int.Parse(item.NRCONTROLE1), int.Parse(item.NRCONTROLE2));
+                item.qnParametros = ((List<ParametroDTO>)item.tbParametros).Count;
+
+
                 List<FileDTO> getFile = cons01ClinkRepositorio.GetFile(int.Parse(item.CDAMOSTRA));
                 foreach (var itemFile in getFile)
                 {
                     item.file = ObtenerPdfBase64(itemFile.Arquivo);
 
                 }
+                //enviar encabezado a funcion funion EnviarJsonParametros quye recibe un string en formato Json
+                //string jsonEncabezado = JsonConvert.SerializeObject(item);
+                //EnviarJsonParametros(jsonEncabezado);
+                
+
+
             }
 
             return listaEncabezado;
@@ -126,7 +135,7 @@ public class Consulta01ClinkAPL : AplicacionBase
         return "No es un PDF";
     }
 
-    public static string ObtenerToken()
+    public gettokenDTO  ObtenerToken()
     {
         // URL del endpoint de token
         string tokenUrl = "https://sso-ipa.usiminas.com/auth/realms/usiminas/protocol/openid-connect/token";
@@ -155,34 +164,60 @@ public class Consulta01ClinkAPL : AplicacionBase
             var response = client.SendAsync(request).GetAwaiter().GetResult();
             response.EnsureSuccessStatusCode();
 
+            // Leer la respuesta
+            var result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        
+
+            gettokenDTO tokenResponse = JsonConvert.DeserializeObject<gettokenDTO>(result);
+
             // Leer el contenido de la respuesta
             string responseContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             dynamic json = JsonConvert.DeserializeObject(responseContent);
             string accessToken = json.access_token;
-            return accessToken;
+
+            return tokenResponse;
         }
     }
 
-    private static string EnviarJsonParametros(string jsonEncabezado)
+    private  string EnviarJsonParametros(string jsonEncabezado)
     {
-        string token = ObtenerToken();
+        var token = ObtenerToken();
 
         using var client = new HttpClient();
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.access_token);
 
-        string url = "https://nbga-gestao-ambiental-back-quarkus-ipa.usininas.com/rest/ceinic/salvar";
+        string url = "https://nbga-gestao-ambiental-back-quarkus-hml-ipa.usiminas.com/rest/ceimic-api/salvar-anexo-info";
         var content = new StringContent(jsonEncabezado, Encoding.UTF8, "application/json");
 
         var response = client.PostAsync(url, content).Result;
         var result = response.Content.ReadAsStringAsync().Result;
-        
+
+        //capturar errores de response para ser mas detallados enrespuesta
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            Console.WriteLine("Token expirado o no autorizado.");
+            return "Token expirado o no autorizado.";
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        {
+            Console.WriteLine($"Error en la solicitud: {result}");
+            return $"Error en la solicitud: {result}";
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+        {
+            Console.WriteLine($"Error interno del servidor: {result}");
+            return $"Error interno del servidor: {result}";
+        }
+
+
+
         if (!response.IsSuccessStatusCode)
         {
-                Console.WriteLine($"Error {response.StatusCode}: {result}");
+            Console.WriteLine($"Error {response.StatusCode}: {result}");
         }
-        
-        return result;
+        string a = "";
+        return a;
         
     }
 

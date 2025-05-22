@@ -33,8 +33,28 @@ public class Consulta01Clink : ControllerBase
 
         try
         {
-            List<EncabezadoDTO> respuestaConsulta = new Consulta01ClinkAPL(configuration, configuracionAPP).ListarEncabezado();
+            List<EncabezadoDTO> respuestaConsulta = new Consulta01ClinkAPL(configuration, configuracionAPP).ListarEncabezado();   
+            
             return Ok(respuestaConsulta);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+
+
+    
+    [HttpGet]
+    [Route("getToken")]
+    public ActionResult getToken()
+    {
+        Consulta01ClinkAPL objResp = new Consulta01ClinkAPL(configuration, configuracionAPP);
+
+        try
+        {
+            var obj = objResp.ObtenerToken();
+            return Ok(obj);
         }
         catch (Exception ex)
         {
@@ -50,6 +70,7 @@ public class Consulta01Clink : ControllerBase
         try
         {
             respuestaProceso = new Consulta01ClinkAPL(configuration, configuracionAPP).RegistroJson(cdamostra);
+
             return Ok(respuestaProceso);
         }
         catch (Exception ex)

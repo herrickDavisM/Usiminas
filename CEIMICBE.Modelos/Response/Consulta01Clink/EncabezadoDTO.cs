@@ -20,6 +20,7 @@ public class EncabezadoDTO
     public string dtAmostragem { get; set; }
     public string dtRecebimento { get; set; }
     public string nmResponsavel { get; set; }
+    public int qnParametros { get; set; }
 
     [JsonIgnore]
     public string NRCONTROLE1 { get; set; }

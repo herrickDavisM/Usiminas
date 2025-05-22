@@ -16,12 +16,12 @@ public class Consulta01ClinkRepositorio : RepositorioMSSQL
     public Consulta01ClinkRepositorio(string _cadenaConexion) : base(_cadenaConexion)
     {
     }
-    public List<EncabezadoDTO> ListarEncabezado()
+    public EncabezadoDTO ListarEncabezado()
     {
         var parametros = new DynamicParameters();
         try
         {
-            List<EncabezadoDTO> lista = base.Listar<EncabezadoDTO>($"{Constante.SPClinkConsulta01Encabezado}", parametros);
+            EncabezadoDTO lista = base.TraerUno<EncabezadoDTO>($"{Constante.SPClinkConsulta01Encabezado}", parametros);
             return lista;
         }
         catch (Exception)

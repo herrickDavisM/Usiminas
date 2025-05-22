@@ -23,41 +23,38 @@ public class Consulta01ClinkAPL : AplicacionBase
         cons01ClinkRepositorio = new Consulta01ClinkRepositorio(parametrosApp.ConexionBDClink);
     }
 
-    public List<EncabezadoDTO> ListarEncabezado()
+    public async Task<string> ListarEncabezado()
     {
-
         try
         {
-            
-            List<EncabezadoDTO> listaEncabezado = cons01ClinkRepositorio.ListarEncabezado();
-            foreach (var item in listaEncabezado)
+            EncabezadoDTO? encabezado = cons01ClinkRepositorio.ListarEncabezado();
+            string respuestaApi = "";
+
+            if (encabezado == null)
             {
-                item.tbParametros = cons01ClinkRepositorio.ListarParametro(int.Parse(item.NRCONTROLE1), int.Parse(item.NRCONTROLE2));
-                item.qnParametros = ((List<ParametroDTO>)item.tbParametros).Count;
-
-
-                List<FileDTO> getFile = cons01ClinkRepositorio.GetFile(int.Parse(item.CDAMOSTRA));
-                foreach (var itemFile in getFile)
-                {
-                    item.file = ObtenerPdfBase64(itemFile.Arquivo);
-
-                }
-                //enviar encabezado a funcion funion EnviarJsonParametros quye recibe un string en formato Json
-                string jsonEncabezado = JsonConvert.SerializeObject(item);
-                EnviarJsonParametros(jsonEncabezado);
-                
-
-
+                return ("No se encontró encabezado.");
             }
 
-            return listaEncabezado;
+            if (encabezado != null)
+            {
+                encabezado.tbParametros = cons01ClinkRepositorio.ListarParametro(int.Parse(encabezado.NRCONTROLE1), int.Parse(encabezado.NRCONTROLE2));
+                encabezado.qnParametros = ((List<ParametroDTO>)encabezado.tbParametros).Count;
 
+                List<FileDTO> getFile = cons01ClinkRepositorio.GetFile(int.Parse(encabezado.CDAMOSTRA));
+                foreach (var itemFile in getFile)
+                {
+                    encabezado.file = ObtenerPdfBase64(itemFile.Arquivo);
+                }
+
+                string jsonEncabezado = JsonConvert.SerializeObject(encabezado);
+                respuestaApi = await EnviarJsonParametros(jsonEncabezado);
+            }
+            return (respuestaApi);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return [];
+            throw new Exception($"Error al listar encabezado: {ex.Message}");
         }
-
     }
 
     public static bool EsZlib(byte[] data)
@@ -179,7 +176,7 @@ public class Consulta01ClinkAPL : AplicacionBase
         }
     }
 
-    private  string EnviarJsonParametros(string jsonEncabezado)
+    private async Task<string> EnviarJsonParametros(string jsonEncabezado)
     {
         var token = ObtenerToken();
 
@@ -193,31 +190,26 @@ public class Consulta01ClinkAPL : AplicacionBase
         var response = client.PostAsync(url, content).Result;
         var result = response.Content.ReadAsStringAsync().Result;
 
-        //capturar errores de response para ser mas detallados enrespuesta
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            Console.WriteLine("Token expirado o no autorizado.");
             return "Token expirado o no autorizado.";
         }
         else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
-            Console.WriteLine($"Error en la solicitud: {result}");
             return $"Error en la solicitud: {result}";
         }
         else if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
         {
-            Console.WriteLine($"Error interno del servidor: {result}");
             return $"Error interno del servidor: {result}";
         }
 
 
-
         if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine($"Error {response.StatusCode}: {result}");
+            return $"Error {response.StatusCode}: {result}";
         }
-        string a = "";
-        return a;
+
+        return result;
         
     }
 

@@ -28,14 +28,17 @@ public class Consulta01Clink : ControllerBase
 
     [HttpGet]
     [Route("ListarEncabezado")]
-    public ActionResult ListarEncabezado()
+    public async Task<ActionResult> ListarEncabezado()
     {
 
         try
         {
-            List<EncabezadoDTO> respuestaConsulta = new Consulta01ClinkAPL(configuration, configuracionAPP).ListarEncabezado();   
+            string respuestaApi = await new Consulta01ClinkAPL(configuration, configuracionAPP).ListarEncabezado();   
             
-            return Ok(respuestaConsulta);
+            return Ok(new
+            {
+                respuestaApi
+            });
         }
         catch (Exception ex)
         {

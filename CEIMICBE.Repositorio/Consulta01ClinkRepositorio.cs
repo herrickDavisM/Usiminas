@@ -69,7 +69,7 @@ public class Consulta01ClinkRepositorio : RepositorioMSSQL
         try
         {
             parametros.Add("@CDMOSTRA", cdamostra);
-            respuestaProceso = base.Actualizar(Constante.SPClinkConsulta01setapiLaudo2, parametros);
+            respuestaProceso = base.Insertar(Constante.SPClinkConsulta01setapiLaudo2, parametros);
         }
         catch (Exception ex)
         {

@@ -1,6 +1,7 @@
 ﻿
 using System.IO.Compression;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Transactions;
 using CEIMICBE.Aplicacion.Base;
@@ -23,7 +24,37 @@ public class Consulta01ClinkAPL : AplicacionBase
         cons01ClinkRepositorio = new Consulta01ClinkRepositorio(parametrosApp.ConexionBDClink);
     }
 
-    public async Task<string> ListarEncabezado()
+    public string ListarEncabezado()
+    {
+
+        try
+        {
+            EncabezadoDTO? encabezado = cons01ClinkRepositorio.ListarEncabezado();
+
+            if (encabezado != null)
+            {
+                encabezado.tbParametros = cons01ClinkRepositorio.ListarParametro(int.Parse(encabezado.NRCONTROLE1), int.Parse(encabezado.NRCONTROLE2));
+                encabezado.qnParametros = ((List<ParametroDTO>)encabezado.tbParametros).Count;
+
+                List<FileDTO> getFile = cons01ClinkRepositorio.GetFile(int.Parse(encabezado.CDAMOSTRA));
+                foreach (var itemFile in getFile)
+                {
+                    encabezado.file = ObtenerPdfBase64(itemFile.Arquivo);
+                }
+
+                return JsonConvert.SerializeObject(encabezado); ;
+            }
+            return "{}";
+
+        }
+        catch (Exception)
+        {
+            return "{}";
+        }
+
+    }
+
+    public async Task<string> EnviarJson()
     {
         try
         {
@@ -48,6 +79,7 @@ public class Consulta01ClinkAPL : AplicacionBase
 
                 string jsonEncabezado = JsonConvert.SerializeObject(encabezado);
                 respuestaApi = await EnviarJsonParametros(jsonEncabezado);
+                RegistroJson(int.Parse(encabezado.CDAMOSTRA));
             }
             return (respuestaApi);
         }

@@ -1,4 +1,5 @@
-﻿using CEIMICBE.Aplicacion.CLinkCons01;
+﻿using System.Text.Json;
+using CEIMICBE.Aplicacion.CLinkCons01;
 using CEIMICBE.Modelos.Aplicacion;
 using CEIMICBE.Modelos.Response.Consulta01Clink;
 using Microsoft.AspNetCore.Mvc;
@@ -26,15 +27,35 @@ public class Consulta01Clink : ControllerBase
         environment = hostEnvironment;
     }
 
+
     [HttpGet]
     [Route("ListarEncabezado")]
-    public async Task<ActionResult> ListarEncabezado()
+    public ActionResult ListarEncabezado()
+    {
+        try
+        {
+            string respuestaConsultaJson = new Consulta01ClinkAPL(configuration, configuracionAPP).ListarEncabezado();
+
+            EncabezadoDTO respuestaConsulta = JsonSerializer.Deserialize<EncabezadoDTO>(respuestaConsultaJson);
+
+            return Ok(respuestaConsulta);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+
+
+    [HttpGet]
+    [Route("EnviarJson")]
+    public async Task<ActionResult> EnviarJson()
     {
 
         try
         {
-            string respuestaApi = await new Consulta01ClinkAPL(configuration, configuracionAPP).ListarEncabezado();   
-            
+            string respuestaApi = await new Consulta01ClinkAPL(configuration, configuracionAPP).EnviarJson();
+
             return Ok(new
             {
                 respuestaApi
@@ -47,7 +68,6 @@ public class Consulta01Clink : ControllerBase
     }
 
 
-    
     [HttpGet]
     [Route("getToken")]
     public ActionResult getToken()

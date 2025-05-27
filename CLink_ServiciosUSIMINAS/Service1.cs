@@ -25,23 +25,5 @@ namespace CLink_ServiciosUSIMINAS
         {
         }
 
-
-        public async Task<ActionResult> EnviarJson()
-        {
-
-            try
-            {
-                string respuestaApi = await new Consulta01ClinkAPL(configuration, configuracionAPP).EnviarJson();
-
-                return Ok(new
-                {
-                    respuestaApi
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
     }
 }

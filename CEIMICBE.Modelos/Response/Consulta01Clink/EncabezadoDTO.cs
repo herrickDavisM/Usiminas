@@ -4,11 +4,11 @@ namespace CEIMICBE.Modelos.Response.Consulta01Clink;
 
 public class EncabezadoDTO
 {
-    public string nrLaudo { get; set; }
-    public string dataLaudo { get; set; }
+    public int idMedicaoTipo { get; set; }
+    public int idPlanta { get; set; }
     public string nmLaudo { get; set; }
-    public string idEntidadeExterna { get; set; }
-    public string idCarga { get; set; }
+    public int idEntidadeExterna { get; set; }
+    public int idCarga { get; set; }
     public string nrRelatorio { get; set; }
     public string dtEmissao { get; set; }
     public string nmCliente { get; set; }
